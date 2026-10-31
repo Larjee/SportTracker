@@ -56,6 +56,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 h1{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:-.01em;margin:0}
 .topbtns{display:flex;gap:6px}
+.profbar{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.profbtn{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.profbtn:hover{border-color:var(--faint)} .profbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.profbtn b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}
+.profbtn small{font-size:12px;color:var(--muted)}
+.ava{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;flex:none}
+.ava.big{width:40px;height:40px;font-size:17px}
+.plistp{display:flex;flex-direction:column;gap:8px}
+.pitem{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.pitem.cur{border-color:var(--acc)}
+.pitem .nm{font-weight:600}
+.pitem .acts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.pitem .wide{grid-column:1/-1}
 nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:16px}
 nav.tabs button{border:0;background:transparent;color:var(--muted);font:600 13px var(--f-body);padding:9px 2px;border-radius:8px;cursor:pointer;white-space:nowrap}
 nav.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
@@ -236,6 +249,25 @@ button.chip{cursor:pointer;font:500 13px var(--f-body);padding:6px 11px}
 .preview{display:flex;gap:14px;align-items:center}
 .preview svg.body{width:64px;margin:0;flex:none}
 
+/* units + template editor */
+.unitbtn{all:unset;cursor:pointer;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--acc);font-weight:600;border-bottom:1px dashed var(--acc-soft);justify-self:start}
+.unitbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.titem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.titem .top{display:flex;gap:10px;align-items:center}
+.titem .top b{flex:1;min-width:0;font-weight:600}
+.tegrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:600px){.tegrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tegrid .f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tegrid input,.tegrid select{width:100%}
+.wu{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:4px}
+.titem .top .btn.icon{flex:none}
+.stepper{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;background:var(--sunk);border:1px solid var(--line);border-radius:8px}
+.stepper button{border:0;background:transparent;color:var(--fg);font-size:18px;height:36px;cursor:pointer;border-radius:8px}
+.stepper span{text-align:center;font-weight:600}
+.tplnew{border:1px dashed var(--acc-soft);background:transparent;border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;justify-content:center;cursor:pointer;color:var(--fg);font:inherit;text-align:left}
+.tplnew:hover{border-color:var(--acc)}
+.tplnew b{color:var(--acc)}
+
 /* sheets */
 .scrim{position:fixed;inset:0;background:var(--scrim);z-index:30;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--bg);width:100%;max-width:640px;max-height:88vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -268,10 +300,11 @@ button.chip{cursor:pointer;font:500 13px var(--f-body);padding:6px 11px}
   <header class="top">
     <h1>Подходы</h1>
     <div class="topbtns">
-      <button class="btn small" id="openHelp">Как пользоваться</button>
+      <button class="btn small" id="openHelp">Справка</button>
       <button class="btn small" id="openData">Данные</button>
     </div>
   </header>
+  <div class="profbar"><button class="profbtn" id="openProfiles" aria-label="Сменить профиль"><span class="ava" id="profAva">Я</span><span style="min-width:0;display:flex;flex-direction:column;line-height:1.2"><small>Профиль</small><b id="profName">Я</b></span><span class="muted" aria-hidden="true">▾</span></button></div>
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-train" aria-selected="true" data-tab="train">Тренировка</button>
@@ -470,13 +503,24 @@ const IMPORT=[
 /* ================= state ================= */
 const docs=new Map();
 let store=null,ready=false;
-const S={tab:"train",day:null,weekStart:null,sel:null,prog:null,progQ:"",metric:"auto",libQ:"",exEdit:null,exPick:{},confirm:null,tplName:null,histMore:false};
+const S={progUnit:null,tplEdit:null,pid:null,tab:"train",day:null,weekStart:null,sel:null,prog:null,progQ:"",metric:"auto",libQ:"",exEdit:null,exPick:{},confirm:null,tplName:null,histMore:false};
 
 function customEx(){return [...docs.entries()].filter(([,d])=>d.kind==="ex").map(([id,d])=>{const p=norm(d.p);return{id,name:d.name,p,s:norm(d.s).filter(k=>!p.includes(k)),builtin:false}})}
 function exercises(){return BUILTIN.concat(customEx())}
 function exById(id){return exercises().find(e=>e.id===id)||RETIRED.find(e=>e.id===id)}
-function entries(){return [...docs.entries()].filter(([,d])=>d.kind==="log").map(([id,d])=>({id,...d}))}
-function templates(){return [...docs.entries()].filter(([,d])=>d.kind==="tpl").map(([id,d])=>({id,...d})).sort((a,b)=>(a.o??99)-(b.o??99)||a.name.localeCompare(b.name,"ru"))}
+const MAINP="p_me";
+const pidOf=d=>d.pid||MAINP;
+const AVA=["#2550C8","#1D8A4E","#C2410C","#7C3AED","#0E7490","#BE185D","#4D5B6A"];
+function profiles(){
+  const list=[...docs.entries()].filter(([,d])=>d.kind==="profile").map(([id,d])=>({id,...d}));
+  if(!list.some(p=>p.id===MAINP))list.unshift({id:MAINP,name:"Я",c:0});
+  return list.sort((a,b)=>(a.id===MAINP?-1:b.id===MAINP?1:(a.t||"").localeCompare(b.t||"")));
+}
+const curProfile=()=>profiles().find(p=>p.id===S.pid)||profiles()[0];
+const avaHTML=(p,big)=>`<span class="ava${big?" big":""}" style="background:${AVA[(p.c||0)%AVA.length]}" aria-hidden="true">${esc((p.name||"?").trim().charAt(0).toUpperCase()||"?")}</span>`;
+function allEntries(){return [...docs.entries()].filter(([,d])=>d.kind==="log").map(([id,d])=>({id,...d}))}
+function entries(){return allEntries().filter(e=>pidOf(e)===S.pid)}
+function templates(){return [...docs.entries()].filter(([,d])=>d.kind==="tpl"&&pidOf(d)===S.pid).map(([id,d])=>({id,...d})).sort((a,b)=>(a.o??99)-(b.o??99)||a.name.localeCompare(b.name,"ru"))}
 const doneSets=sets=>(sets||[]).filter(s=>s&&+s.r>0);
 
 /* ================= helpers ================= */
@@ -505,12 +549,17 @@ const exMatch=(e,q)=>{const w=nrm(q).split(/\s+/).filter(Boolean);if(!w.length)r
 const plural=(n,a,b,c)=>{const x=Math.abs(n)%10,y=Math.abs(n)%100;return x===1&&y!==11?a:x>=2&&x<=4&&(y<10||y>=20)?b:c};
 const setsLabel=n=>plural(n,"подход","подхода","подходов");
 const exLabel=n=>plural(n,"упражнение","упражнения","упражнений");
-const tonnage=sets=>doneSets(sets).reduce((t,x)=>t+(+x.r)*(+x.w||0),0);
+const UNITS={kg:{s:"кг",n:"кг",f:1},st:{s:"пл.",n:"плитки",f:0},lb:{s:"фунт",n:"фунты",f:0.4536}};
+const UORDER=["kg","st","lb"];
+const uOf=e=>e&&UNITS[e.unit]?e.unit:"kg";
+let PU="kg";
+const tonnage=(sets,u="kg")=>doneSets(sets).reduce((t,x)=>t+(+x.r)*(+x.w||0),0)*UNITS[u].f;
+function lastUnitFor(exId){const l=entries().filter(e=>e.ex===exId).sort((a,b)=>(b.date+(b.t||"")).localeCompare(a.date+(a.t||"")))[0];return l?uOf(l):null}
 const e1rm=(w,r)=>w>0&&r>0?w*(1+Math.min(r,15)/30):0;
-function setsText(sets){
+function setsText(sets,u="kg"){
   const d=doneSets(sets);const parts=[];let i=0;
   while(i<d.length){let j=i;while(j+1<d.length&&d[j+1].r==d[i].r&&(+d[j+1].w||0)==(+d[i].w||0))j++;
-    const one=(+d[i].w?nf.format(d[i].w)+" кг × ":"")+d[i].r;const n=j-i+1;parts.push(n>1?one+" (×"+n+")":one);i=j+1}
+    const one=(+d[i].w?nf.format(d[i].w)+" "+UNITS[u].s+" × ":"")+d[i].r;const n=j-i+1;parts.push(n>1?one+" (×"+n+")":one);i=j+1}
   return parts.join(", ")||"подходы не отмечены";
 }
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
@@ -563,7 +612,7 @@ async function boot(){
   try{if(window.claude&&window.claude.use){[db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);if(user)u=await user.id()}}catch(e){}
   store=(db&&u)?dbStore(db,u):localStore();
   let first=true;
-  store.start(()=>{ready=true;if(first){first=false;seed()}render()});
+  store.start(()=>{ready=true;if(!profiles().some(p=>p.id===S.pid))S.pid=MAINP;if(first){first=false;seed()}render()});
 }
 async function seed(){
   if(docs.has("meta_tplseed"))return;
@@ -574,9 +623,10 @@ async function seed(){
 }
 
 /* ================= analytics ================= */
-function sessionsFor(exId){
+function unitsFor(exId){const l=entries().filter(e=>e.ex===exId&&doneSets(e.sets).length).sort((a,b)=>(b.date+(b.t||"")).localeCompare(a.date+(a.t||"")));return [...new Set(l.map(uOf))]}
+function sessionsFor(exId,u){
   const by={};
-  for(const e of entries()){if(e.ex!==exId)continue;const d=doneSets(e.sets);if(!d.length)continue;(by[e.date]=by[e.date]||[]).push(...d.map(s=>({r:+s.r,w:+s.w||0})))}
+  for(const e of entries()){if(e.ex!==exId||(u&&uOf(e)!==u))continue;const d=doneSets(e.sets);if(!d.length)continue;(by[e.date]=by[e.date]||[]).push(...d.map(s=>({r:+s.r,w:+s.w||0})))}
   return Object.keys(by).sort().map(date=>{const sets=by[date];
     const best=sets.reduce((b,s)=>e1rm(s.w,s.r)>e1rm(b.w,b.r)?s:b,sets[0]);
     return{date,sets,top:Math.max(...sets.map(s=>s.w)),maxReps:Math.max(...sets.map(s=>s.r)),e1rm:Math.max(...sets.map(s=>e1rm(s.w,s.r))),vol:sets.reduce((t,s)=>t+s.w*s.r,0),totalReps:sets.reduce((t,s)=>t+s.r,0),best}});
@@ -588,9 +638,9 @@ const METRICS={
   reps:{name:"Повторы",unit:"",get:s=>s.totalReps,hint:"Сумма повторений за тренировку. Главный показатель для упражнений без веса."}
 };
 const autoMetric=sess=>sess.some(s=>s.top>0)?"e1rm":"reps";
-const fmtMetric=(k,v)=>nf.format(Math.round(v*10)/10)+(METRICS[k].unit?" "+METRICS[k].unit:"");
-function bestBefore(exId,date,excludeId){
-  let b=0;for(const e of entries()){if(e.ex!==exId||e.id===excludeId||e.date>=date)continue;for(const s of doneSets(e.sets))b=Math.max(b,e1rm(+s.w||0,+s.r))}return b;
+const fmtMetric=(k,v)=>nf.format(Math.round(v*10)/10)+(METRICS[k].unit?" "+UNITS[PU].s:"");
+function bestBefore(exId,date,excludeId,u){
+  let b=0;for(const e of entries()){if(e.ex!==exId||e.id===excludeId||e.date>=date||uOf(e)!==u)continue;for(const s of doneSets(e.sets))b=Math.max(b,e1rm(+s.w||0,+s.r))}return b;
 }
 function lastSession(exId,beforeDate,excludeId){
   return entries().filter(e=>e.ex===exId&&e.id!==excludeId&&e.date<beforeDate&&doneSets(e.sets).length).sort((a,b)=>(b.date+(b.t||"")).localeCompare(a.date+(a.t||"")))[0];
@@ -605,6 +655,7 @@ function renderTrain(force){
   if(!force&&trainFocused()){trainPending=true;return}
   trainPending=false;
   const v=$("view-train");if(!S.day)S.day=today();
+  if(S.tplEdit){v.innerHTML=tplEditorHTML();return}
   const days=workoutDays();const ws=mondayOf(parseISO(S.day));
   let h="";
   if(lsGet("podhody.welcome")!=="off"&&entries().filter(e=>!e.demo).length<4)h+=welcomeHTML();
@@ -613,44 +664,48 @@ function renderTrain(force){
     h+=`<button class="dayb${days[k]?' has':''}${k===today()?' today':''}${k===S.day?' on':''}" data-day="${k}" aria-label="${fDM.format(d)}${days[k]?", есть тренировка":""}"><small>${wds(d)}</small><b>${d.getDate()}</b><i></i></button>`}
   h+=`<button class="btn icon nav" data-act="wk-next" aria-label="Следующая неделя">›</button></div>`;
   const list=dayEntries(S.day);
-  const nSets=list.reduce((t,e)=>t+doneSets(e.sets).length,0),total=list.reduce((t,e)=>t+(e.sets||[]).length,0),ton=list.reduce((t,e)=>t+tonnage(e.sets),0);
+  const nSets=list.reduce((t,e)=>t+doneSets(e.sets).length,0),total=list.reduce((t,e)=>t+(e.sets||[]).length,0),ton=list.reduce((t,e)=>t+tonnage(e.sets,uOf(e)),0);
   h+=`<div class="dayttl"><h2>${esc(dayTitle(S.day))}</h2>${S.day!==today()?`<button class="btn small" data-act="go-today">К сегодняшнему дню</button>`:""}</div>`;
   if(list.length){
-    h+=`<div class="sumline"><span><b>${list.length}</b> ${exLabel(list.length)}</span><span><b>${nSets}</b> из ${total} ${setsLabel(total)} отмечено</span>${ton?`<span><b>${nf.format(Math.round(ton))}</b> кг тоннаж</span>`:""}</div>`;
+    h+=`<div class="sumline">${sumHTML(list)}</div>`;
     h+=list.map(cardHTML).join("");
-    h+=`<div class="addbar"><button class="btn primary big" data-act="add-ex">+ Добавить упражнение</button></div>`;
+    h+=`<div class="addbar"><button class="btn primary big" data-act="add-ex">+ Добавить упражнение</button><button class="btn big" data-act="tpl-sheet">+ Из шаблона</button></div>`;
     h+=dayToolsHTML(list);
   }else{
     h+=`<div class="panel empty"><h2>${S.day>today()?"На этот день ничего не запланировано":"В этот день тренировки нет"}</h2><p class="muted" style="margin:0 auto 12px;max-width:46ch">Начни по шаблону: все упражнения появятся сразу, останется вписать вес и повторы. Или добавляй упражнения по одному.</p><button class="btn primary big" data-act="add-ex">+ Добавить упражнение</button></div>`;
     const tp=templates();
-    if(tp.length)h+=`<div class="spread"><h2>Шаблоны</h2><span class="hint">веса подскажет прошлый раз</span></div><div class="tplgrid">${tp.map(tplHTML).join("")}</div>`;
+    h+=`<div class="spread"><h2>Шаблоны</h2><span class="hint">${tp.length?"нажми «Начать», потом поправь веса":"собери свою программу"}</span></div><div class="tplgrid">${tp.map(tplHTML).join("")}<button class="tplnew" data-act="tpl-new"><b>+ Новый шаблон</b><span class="hint">Выбери упражнения, подходы, повторы, вес и отдых</span></button></div>`;
   }
   h+=historyHTML(days);
   v.innerHTML=h;
 }
+function sumHTML(list){
+  const nSets=list.reduce((t,e)=>t+doneSets(e.sets).length,0),total=list.reduce((t,e)=>t+(e.sets||[]).length,0),ton=list.reduce((t,e)=>t+tonnage(e.sets,uOf(e)),0);
+  return `<span><b>${list.length}</b> ${exLabel(list.length)}</span><span><b>${nSets}</b> из ${total} ${setsLabel(total)} отмечено</span>${ton?`<span><b>${nf.format(Math.round(ton))}</b> кг тоннаж</span>`:""}`}
 function welcomeHTML(){return `<div class="panel welcome stack"><div class="spread"><h2>Как это работает</h2><button class="btn ghost small" data-act="welcome-off">Понятно, скрыть</button></div>
   <div class="steps"><div><span>Выбери день в полоске и нажми шаблон или «Добавить упражнение».</span></div><div><span>Впиши вес и повторы. Серые цифры — прошлый раз: нажми галочку, и они подставятся.</span></div><div><span>Сохранять не нужно, всё пишется само. Любой прошлый день можно открыть и поправить.</span></div><div><span>«Неделя» — нагрузка на мышцы. «Прогресс» — графики и рекорды по упражнениям.</span></div></div></div>`}
 function tplHTML(t){
   const items=t.items||[];
-  return `<div class="tpl"><h3>${esc(t.name)}</h3><ol>${items.map(it=>{const ex=exById(it.ex);return `<li>${esc(ex?ex.name:"?")} — ${it.n}×${esc(it.reps||"")}</li>`}).join("")}</ol>
+  return `<div class="tpl"><h3>${esc(t.name)}</h3><ol>${items.map(it=>{const ex=exById(it.ex);return `<li>${esc(ex?ex.name:"?")} — ${it.n}${it.reps?"×"+esc(it.reps):" подх."}${+it.w?", "+esc(inNum(it.w))+" "+UNITS[UNITS[it.unit]?it.unit:"kg"].s:""}</li>`}).join("")}</ol>
   ${S.confirm==="tpl:"+t.id?`<div class="confirmrow">Удалить шаблон? <button class="btn small danger" data-act="tpl-del-ok" data-id="${t.id}">Удалить</button><button class="btn small ghost" data-act="cancel">Нет</button></div>`:
-  `<div class="acts"><button class="btn primary" data-act="tpl-start" data-id="${t.id}">Начать</button><button class="btn ghost small" data-act="tpl-del" data-id="${t.id}">Удалить</button></div>`}</div>`;
+  `<div class="acts"><button class="btn primary" data-act="tpl-start" data-id="${t.id}">Начать</button><button class="btn small" data-act="tpl-edit" data-id="${t.id}">Изменить</button><button class="btn ghost small" data-act="tpl-del" data-id="${t.id}">Удалить</button></div>`}</div>`;
 }
 function cardHTML(e){
   const ex=exById(e.ex);const sets=e.sets&&e.sets.length?e.sets:[{r:null,w:null}];
-  const last=lastSession(e.ex,e.date,e.id);const lastD=last?doneSets(last.sets):[];
-  const best=bestBefore(e.ex,e.date,e.id);
+  const u=uOf(e);
+  const last=lastSession(e.ex,e.date,e.id);const lastD=last&&uOf(last)===u?doneSets(last.sets):last?doneSets(last.sets).map(x=>({r:x.r,w:null})):[];
+  const best=bestBefore(e.ex,e.date,e.id,u);
   const myBest=Math.max(0,...doneSets(e.sets).map(s=>e1rm(+s.w||0,+s.r)));
   const isPR=best>0&&myBest>best+0.01;
   const planReps=e.plan&&e.plan.reps?(String(e.plan.reps).match(/\d+/)||[])[0]:null;
   let h=`<article class="card" data-id="${e.id}"><div class="ch">${miniMaps(ex)}<div class="ttl">
     <div class="spread" style="align-items:flex-start;flex-wrap:nowrap"><button class="exname" data-act="prog" data-ex="${esc(e.ex)}" title="Открыть прогресс">${esc(ex?ex.name:"Удалённое упражнение")}</button><span class="row" style="gap:4px;flex-wrap:nowrap">${isPR?`<span class="pill pr">Рекорд</span>`:""}${e.demo?`<span class="pill down">пример</span>`:""}</span></div>
     <div class="meta">${e.plan&&e.plan.reps?`<span class="plan">План: ${e.sets.length}×${esc(e.plan.reps)}${e.plan.rest?` · отдых ${fmtRest(e.plan.rest)}`:""}</span>`:""}
-    ${last?`<span class="last"><span>Прошлый раз, ${fDMs.format(parseISO(last.date))}: ${esc(setsText(last.sets))}</span><button class="btn small" data-act="copy-last">Подставить веса</button></span>`:`<span>Первый раз это упражнение: впиши рабочий вес и повторы.</span>`}</div></div></div>
-    <div class="sgrid head"><span>№</span><span>Вес, кг</span><span>Повторы</span><span></span><span></span></div>`;
+    ${last?`<span class="last"><span>Прошлый раз, ${fDMs.format(parseISO(last.date))}: ${esc(setsText(last.sets,uOf(last)))}</span><button class="btn small" data-act="copy-last">Подставить веса</button></span>`:`<span>Первый раз это упражнение: впиши рабочий вес и повторы.</span>`}</div></div></div>
+    <div class="sgrid head"><span>№</span><button class="unitbtn" data-act="unit" title="Сменить единицу: кг, плитки, фунты">Вес, ${UNITS[u].n} ▾</button><span>Повторы</span><span></span><span></span></div>`;
   sets.forEach((s,i)=>{const p=lastD[i]||lastD[lastD.length-1];const done=+s.r>0;
     h+=`<div class="sgrid${done?' done':''}" data-i="${i}"><span class="n">${i+1}</span>
-      <input id="w-${e.id}-${i}" data-f="w" inputmode="decimal" autocomplete="off" value="${inNum(s.w)}" placeholder="${p&&+p.w?esc(inNum(p.w)):"кг"}" aria-label="Вес, подход ${i+1}">
+      <input id="w-${e.id}-${i}" data-f="w" inputmode="decimal" autocomplete="off" value="${inNum(s.w)}" placeholder="${p&&+p.w?esc(inNum(p.w)):UNITS[u].s}" aria-label="Вес (${UNITS[u].n}), подход ${i+1}">
       <input id="r-${e.id}-${i}" data-f="r" inputmode="numeric" autocomplete="off" value="${inNum(s.r)}" placeholder="${p?esc(p.r):planReps||"повт"}" aria-label="Повторы, подход ${i+1}">
       <button class="tick" data-act="tick" aria-label="${done?"Снять отметку с подхода":"Отметить подход"} ${i+1}" title="${done?"Снять отметку":"Подход сделан. Пустые поля возьмут серые цифры"}">${CHECK}</button>
       <button class="rm" data-act="rm-set" aria-label="Убрать подход ${i+1}" ${sets.length<2?"disabled":""}>×</button></div>`});
@@ -678,8 +733,10 @@ function historyHTML(days){
 function newEntry(exId,extra={}){
   const list=dayEntries(S.day);const last=lastSession(exId,S.day);
   const n=extra.n||(last?doneSets(last.sets).length:3);
-  const body={kind:"log",date:S.day,ex:exId,sets:Array.from({length:Math.max(1,Math.min(n,12))},()=>({r:null,w:null})),t:new Date().toISOString(),o:(list.length?Math.max(...list.map(e=>e.o??0))+1:0)};
+  const body={kind:"log",pid:S.pid,date:S.day,ex:exId,sets:Array.from({length:Math.max(1,Math.min(n,12))},()=>({r:null,w:null})),t:new Date().toISOString(),o:(list.length?Math.max(...list.map(e=>e.o??0))+1:0)};
   if(extra.plan)body.plan=extra.plan;
+  const u=extra.unit||lastUnitFor(exId)||"kg";if(u!=="kg")body.unit=u;
+  if(+extra.w>0)body.sets.forEach(x=>x.w=+extra.w);
   return body;
 }
 const entryBody=id=>{const d=docs.get(id);return d?clean(d):null};
@@ -693,12 +750,14 @@ $("view-train").addEventListener("click",async ev=>{
     case "go-today":S.day=today();S.confirm=null;break;
     case "welcome-off":lsSet("podhody.welcome","off");break;
     case "hist-more":S.histMore=true;break;
-    case "add-ex":openPicker();return;
+    case "add-ex":openPicker(addExToDay);return;
+    case "tpl-sheet":openTplSheet();return;
+    case "tpl-new":S.tplEdit={id:null,name:"",items:[]};window.scrollTo(0,0);break;
+    case "tpl-edit":{const tp=docs.get(t.dataset.id);if(!tp)return;S.tplEdit={id:t.dataset.id,name:tp.name,items:clean(tp.items||[])};window.scrollTo(0,0);break}
+    case "unit":{const b=entryBody(id);const cur=uOf(b);const nx=UORDER[(UORDER.indexOf(cur)+1)%UORDER.length];if(nx==="kg")delete b.unit;else b.unit=nx;await put(id,b);toast("Вес в единицах: "+UNITS[nx].n);break}
     case "prog":await flushAll();S.tab="prog";S.prog=t.dataset.ex;S.metric="auto";render();window.scrollTo(0,0);return;
     case "cancel":S.confirm=null;S.tplName=null;break;
-    case "tpl-start":{const tp=docs.get(t.dataset.id);if(!tp)return;let o=0;
-      for(const it of tp.items||[]){if(!exById(it.ex))continue;const b=newEntry(it.ex,{n:it.n,plan:{reps:it.reps||"",rest:it.rest||90}});b.o=o++;b.t=new Date(Date.now()+o).toISOString();await put(uid("w_"),b)}
-      toast("Тренировка создана: "+tp.name);break}
+    case "tpl-start":await startTemplate(t.dataset.id);break;
     case "tpl-del":S.confirm="tpl:"+t.dataset.id;break;
     case "tpl-del-ok":await remove(t.dataset.id);S.confirm=null;toast("Шаблон удалён");break;
     case "tick":{const b=entryBody(id);const row=t.closest(".sgrid");const i=+row.dataset.i;
@@ -723,15 +782,34 @@ $("view-train").addEventListener("click",async ev=>{
     case "move-ok":{const nd=$("moveDate").value;if(!nd||nd===S.day){S.confirm=null;break}
       const off=dayEntries(nd).length;for(const e of dayEntries(S.day)){const b=entryBody(e.id);b.date=nd;b.o=(b.o??0)+off;await put(e.id,b)}
       S.day=nd;S.confirm=null;toast("Тренировка перенесена на "+fDM.format(parseISO(nd)));break}
-    case "tpl-save":S.tplName="Моя тренировка, "+fDMs.format(parseISO(S.day));break;
+    case "tpl-save":S.tplEdit={id:null,name:"Моя тренировка, "+fDMs.format(parseISO(S.day)),items:dayEntries(S.day).map(e=>{const d=doneSets(e.sets);const w=(d[0]&&+d[0].w)||((e.sets||[]).find(x=>+x.w>0)||{}).w||null;return{ex:e.ex,n:Math.max(1,(e.sets||[]).length),reps:(e.plan&&e.plan.reps)||"",rest:(e.plan&&e.plan.rest)||90,w,unit:uOf(e)}})};window.scrollTo(0,0);break;
+    case "te-cancel":S.tplEdit=null;S.confirm=null;break;
+    case "te-add":openPicker(exId=>{const l=lastSession(exId,"9999-12-31");const u=lastUnitFor(exId)||"kg";const d=l?doneSets(l.sets):[];
+      S.tplEdit.items.push({ex:exId,n:d.length||3,reps:"",rest:+lsGet("podhody.rest")||90,w:d.length&&uOf(l)===u?Math.max(...d.map(x=>+x.w||0))||null:null,unit:u});renderTrain(true);
+      const all=document.querySelectorAll(".titem");if(all.length)all[all.length-1].scrollIntoView({behavior:"smooth",block:"center"})},{title:"Добавить в шаблон",inSet:new Set(S.tplEdit.items.map(x=>x.ex))});return;
+    case "te-up":case "te-down":{const k=+t.closest(".titem").dataset.k;const j=k+(t.dataset.act==="te-up"?-1:1);const a=S.tplEdit.items;if(j<0||j>=a.length)return;[a[k],a[j]]=[a[j],a[k]];break}
+    case "te-rm":S.tplEdit.items.splice(+t.closest(".titem").dataset.k,1);break;
+    case "te-n":{const it=S.tplEdit.items[+t.closest(".titem").dataset.k];it.n=Math.max(1,Math.min(12,(it.n||3)+(+t.dataset.d)));break}
+    case "te-save":{const te=S.tplEdit;const name=(te.name||"").trim();
+      if(!name){toast("Дай шаблону название");$("teName").focus();return}
+      if(!te.items.length){toast("Добавь хотя бы одно упражнение");return}
+      const items=te.items.map(it=>{const o={ex:it.ex,n:it.n||3,reps:(it.reps||"").trim(),rest:+it.rest||90};if(+it.w>0)o.w=+it.w;if(it.unit&&it.unit!=="kg")o.unit=it.unit;return o});
+      const old=te.id&&docs.get(te.id);
+      await put(te.id||uid("tpl_"),{kind:"tpl",pid:S.pid,name,o:old?old.o??0:templates().length,items});
+      toast(te.id?"Шаблон сохранён":"Шаблон создан. Он есть на пустом дне и в «+ Из шаблона»");S.tplEdit=null;S.confirm=null;break}
+    case "te-del":S.confirm="te-del";break;
+    case "te-del-ok":await remove(S.tplEdit.id);S.tplEdit=null;S.confirm=null;toast("Шаблон удалён");break;
     case "tpl-save-ok":{const name=($("tplNameIn").value||"").trim();if(!name){toast("Дай шаблону название");return}
       const items=dayEntries(S.day).map(e=>({ex:e.ex,n:Math.max(1,(e.sets||[]).length),reps:(e.plan&&e.plan.reps)||"",rest:(e.plan&&e.plan.rest)||90}));
-      await put(uid("tpl_"),{kind:"tpl",name,o:templates().length,items});S.tplName=null;toast("Шаблон сохранён. Он появится на пустом дне");break}
+      await put(uid("tpl_"),{kind:"tpl",pid:S.pid,name,o:templates().length,items});S.tplName=null;toast("Шаблон сохранён. Он появится на пустом дне");break}
     default:return;
   }
   renderTrain(true);
 });
 $("view-train").addEventListener("input",ev=>{
+  const te=ev.target.dataset.te;
+  if(te&&S.tplEdit){if(te==="name"){S.tplEdit.name=ev.target.value;return}const it=S.tplEdit.items[+ev.target.closest(".titem").dataset.k];
+    if(te==="w")it.w=num(ev.target.value);else if(te==="rest")it.rest=+ev.target.value;else it[te]=ev.target.value;return}
   const f=ev.target.dataset.f;if(!f)return;const card=ev.target.closest(".card");if(!card)return;
   const id=card.dataset.id;const b=entryBody(id);if(!b)return;
   if(f==="note"){const v=ev.target.value.trim();if(v)b.note=v;else delete b.note}
@@ -739,35 +817,71 @@ $("view-train").addEventListener("input",ev=>{
     const v=num(ev.target.value);b.sets[i][f]=f==="r"&&v!=null?Math.round(v):v;typedAt[id+":"+i]=Date.now();
     row.classList.toggle("done",+b.sets[i].r>0)}
   put(id,b,700);
+  const sl=document.querySelector("#view-train .sumline");if(sl)sl.innerHTML=sumHTML(dayEntries(S.day));
 });
 $("view-train").addEventListener("change",ev=>{
+  const te=ev.target.dataset.te;if(te&&S.tplEdit&&ev.target.tagName==="SELECT"){const it=S.tplEdit.items[+ev.target.closest(".titem").dataset.k];it[te]=te==="rest"?+ev.target.value:ev.target.value;if(te==="unit")renderTrain(true);return}
   if(ev.target.dataset.f!=="r")return;const card=ev.target.closest(".card");if(!card)return;
   const b=docs.get(card.dataset.id);if(b&&num(ev.target.value)>0&&restEnd<Date.now())startRest(b);
 });
 $("view-train").addEventListener("focusout",()=>setTimeout(()=>{if(trainPending&&!trainFocused())renderTrain()},0));
 $("view-train").addEventListener("keydown",ev=>{
   if(ev.key!=="Enter")return;
+  if(ev.target.dataset.te){ev.preventDefault();ev.target.blur();return}
   if(ev.target.id==="tplNameIn"){ev.preventDefault();$("view-train").querySelector('[data-act="tpl-save-ok"]').click();return}
   if(ev.target.dataset.f==="w"){ev.preventDefault();const r=ev.target.closest(".sgrid").querySelector('[data-f="r"]');r&&r.focus()}
   else if(ev.target.dataset.f==="r"){ev.preventDefault();ev.target.blur()}
 });
 
 /* exercise picker */
-function openPicker(){
+async function addExToDay(exId){const id=uid("w_");await put(id,newEntry(exId));S.confirm=null;renderTrain(true);
+  const el=document.querySelector(`.card[data-id="${id}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})}
+async function startTemplate(tid){const tp=docs.get(tid);if(!tp)return;const list=dayEntries(S.day);let o=list.length?Math.max(...list.map(e=>e.o??0))+1:0;
+  for(const it of tp.items||[]){if(!exById(it.ex))continue;const b=newEntry(it.ex,{n:it.n,plan:{reps:it.reps||"",rest:it.rest||90},unit:it.unit,w:it.w});b.o=o++;b.t=new Date(Date.now()+o).toISOString();await put(uid("w_"),b)}
+  toast((list.length?"Добавлено из шаблона: ":"Тренировка создана: ")+tp.name)}
+function openTplSheet(){
+  const tp=templates();
+  const sh=openSheet("Добавить из шаблона",`<div class="stack">${tp.length?tp.map(t=>`<div class="tpl"><h3>${esc(t.name)}</h3><p class="hint" style="margin:0">${esc((t.items||[]).map(it=>(exById(it.ex)||{}).name||"?").join(", "))}</p><div class="acts"><button class="btn primary" data-ts="add" data-id="${t.id}">Добавить в этот день</button><button class="btn small" data-ts="edit" data-id="${t.id}">Изменить</button></div></div>`).join(""):`<p class="muted">Шаблонов пока нет.</p>`}
+    <button class="tplnew" data-ts="new"><b>+ Новый шаблон</b><span class="hint">Выбери упражнения, подходы, повторы, вес и отдых</span></button></div>`);
+  sh.addEventListener("click",async e=>{const b=e.target.closest("[data-ts]");if(!b)return;closeSheet();
+    if(b.dataset.ts==="add")await startTemplate(b.dataset.id);
+    else if(b.dataset.ts==="edit"){const t=docs.get(b.dataset.id);S.tplEdit={id:b.dataset.id,name:t.name,items:clean(t.items||[])};window.scrollTo(0,0)}
+    else{S.tplEdit={id:null,name:"",items:[]};window.scrollTo(0,0)}
+    renderTrain(true)});
+}
+function tplEditorHTML(){
+  const te=S.tplEdit;const rests=[45,60,90,120,150,180,240];
+  return `<div class="row"><button class="btn small" data-act="te-cancel">‹ Назад к тренировке</button></div>
+  <div class="panel stack"><h2>${te.id?"Изменить шаблон":"Новый шаблон"}</h2>
+    <div class="stack" style="gap:4px"><label class="label" for="teName">Название</label><input id="teName" data-te="name" maxlength="60" value="${esc(te.name)}" placeholder="Например: Верх тела, понедельник"></div>
+    <p class="hint" style="margin:0">Вес необязателен: если его нет, при старте подскажет прошлый раз. В тренировке всё можно поправить.</p></div>
+  ${te.items.map((it,k)=>{const ex=exById(it.ex);const u=UNITS[it.unit]?it.unit:"kg";return `<article class="titem" data-k="${k}">
+    <div class="top">${miniMaps(ex)}<b>${k+1}. ${esc(ex?ex.name:"?")}</b>
+      <button class="btn icon ghost" data-act="te-up" aria-label="Выше" ${k===0?"disabled":""}>↑</button><button class="btn icon ghost" data-act="te-down" aria-label="Ниже" ${k===te.items.length-1?"disabled":""}>↓</button><button class="btn icon ghost danger" data-act="te-rm" aria-label="Убрать из шаблона">×</button></div>
+    <div class="tegrid">
+      <div class="f"><span class="label">Подходы</span><div class="stepper"><button data-act="te-n" data-d="-1" aria-label="Меньше подходов">−</button><span>${it.n||3}</span><button data-act="te-n" data-d="1" aria-label="Больше подходов">+</button></div></div>
+      <div class="f"><label class="label" for="te-r-${k}">Повторы</label><input id="te-r-${k}" data-te="reps" value="${esc(it.reps||"")}" placeholder="10–12"></div>
+      <div class="f"><label class="label" for="te-w-${k}">Вес</label><div class="wu"><input id="te-w-${k}" data-te="w" inputmode="decimal" value="${inNum(it.w)}" placeholder="—"><select data-te="unit" aria-label="Единица веса">${UORDER.map(x=>`<option value="${x}"${x===u?" selected":""}>${UNITS[x].n}</option>`).join("")}</select></div></div>
+      <div class="f"><label class="label" for="te-rest-${k}">Отдых</label><select id="te-rest-${k}" data-te="rest">${rests.map(r=>`<option value="${r}"${r===(+it.rest||90)?" selected":""}>${fmtRest(r)}</option>`).join("")}</select></div>
+    </div></article>`}).join("")}
+  ${te.items.length?"":`<div class="panel empty"><p class="muted" style="margin:0">Пока пусто. Добавь первое упражнение.</p></div>`}
+  <div class="addbar"><button class="btn big" data-act="te-add">+ Добавить упражнение</button></div>
+  ${S.confirm==="te-del"?`<div class="confirmrow">Удалить шаблон «${esc(te.name)}»? Тренировки, сделанные по нему, останутся. <button class="btn small danger" data-act="te-del-ok">Удалить</button><button class="btn small ghost" data-act="cancel">Нет</button></div>`:""}
+  <div class="row"><button class="btn primary big" data-act="te-save">Сохранить шаблон</button><button class="btn ghost" data-act="te-cancel">Отмена</button>${te.id&&S.confirm!=="te-del"?`<button class="btn ghost danger" data-act="te-del" style="margin-left:auto">Удалить шаблон</button>`:""}</div>`;
+}
+function openPicker(onPick,opts={}){
   const recent=[];for(const e of entries().sort((a,b)=>(b.date+(b.t||"")).localeCompare(a.date+(a.t||"")))){const x=exById(e.ex);if(x&&!x.retired&&!recent.includes(e.ex))recent.push(e.ex);if(recent.length>=6)break}
-  const inDay=new Set(dayEntries(S.day).map(e=>e.ex));
-  const item=ex=>{const last=lastSession(ex.id,"9999-12-31");return `<button class="pick" data-pick="${esc(ex.id)}">${miniMaps(ex)}<span><b>${esc(ex.name)}${inDay.has(ex.id)?' <span class="pill up">уже в тренировке</span>':""}</b><span class="sub">${ex.p.map(m=>MNAME[m]).join(", ")}${last?" · прошлый раз: "+esc(setsText(last.sets)):""}</span></span></button>`};
+  const inDay=opts.inSet||new Set(dayEntries(S.day).map(e=>e.ex));const inLbl=opts.inSet?"уже в шаблоне":"уже в тренировке";
+  const item=ex=>{const last=lastSession(ex.id,"9999-12-31");return `<button class="pick" data-pick="${esc(ex.id)}">${miniMaps(ex)}<span><b>${esc(ex.name)}${inDay.has(ex.id)?' <span class="pill up">'+inLbl+'</span>':""}</b><span class="sub">${ex.p.map(m=>MNAME[m]).join(", ")}${last?" · прошлый раз: "+esc(setsText(last.sets,uOf(last))):""}</span></span></button>`};
   const draw=q=>{q=q.trim().toLowerCase();
     const all=exercises().filter(e=>exMatch(e,q));
     let h="";
     if(!q&&recent.length)h+=`<div class="label">Недавние</div><div class="picklist">${recent.map(id=>item(exById(id))).join("")}</div>`;
     h+=groupedExercises(all).map(([g,l])=>`<div class="label">${esc(g)}</div><div class="picklist">${l.map(item).join("")}</div>`).join("");
     return h||`<p class="muted">Ничего не нашлось. Своё упражнение можно создать во вкладке «Упражнения».</p>`};
-  const sh=openSheet("Добавить упражнение",`<input type="search" id="pickQ" placeholder="Поиск: название или мышца" aria-label="Поиск упражнения"><div class="stack" id="pickList" style="gap:8px">${draw("")}</div>`);
+  const sh=openSheet(opts.title||"Добавить упражнение",`<input type="search" id="pickQ" placeholder="Поиск: название или мышца" aria-label="Поиск упражнения"><div class="stack" id="pickList" style="gap:8px">${draw("")}</div>`);
   sh.querySelector("#pickQ").addEventListener("input",e=>{sh.querySelector("#pickList").innerHTML=draw(e.target.value)});
-  sh.addEventListener("click",async e=>{const b=e.target.closest("[data-pick]");if(!b)return;closeSheet();
-    const id=uid("w_");await put(id,newEntry(b.dataset.pick));S.confirm=null;renderTrain(true);
-    const el=document.querySelector(`.card[data-id="${id}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"center"})});
+  sh.addEventListener("click",async e=>{const b=e.target.closest("[data-pick]");if(!b)return;closeSheet();await onPick(b.dataset.pick)});
 }
 function openSheet(title,body){
   const host=$("sheetHost");
@@ -808,7 +922,7 @@ function weekVolume(start){
   for(const g of GROUPS){gvol[g[0]]=0;gsrc[g[0]]=[]}
   for(const e of entries()){
     if(e.date<a||e.date>b)continue;const ex=exById(e.ex);if(!ex)continue;
-    const n=doneSets(e.sets).length;if(!n)continue;sets+=n;ton+=tonnage(e.sets);days.add(e.date);
+    const n=doneSets(e.sets).length;if(!n)continue;sets+=n;ton+=tonnage(e.sets,uOf(e));days.add(e.date);
     for(const m of ex.p){vol[m]+=n;src[m].push([ex.name,n,1])}
     for(const m of ex.s){vol[m]+=n*.5;src[m].push([ex.name,n,.5])}
     for(const g of GROUPS){const mem=GMEM[g[0]];const k=ex.p.some(m=>mem.includes(m))?1:ex.s.some(m=>mem.includes(m))?.5:0;if(k){gvol[g[0]]+=n*k;gsrc[g[0]].push([ex.name,n,k])}}
@@ -862,37 +976,38 @@ function chartSVG(sess,k){
   g+=xl.map(i=>`<text x="${pts[i][0]}" y="${Hh-8}" text-anchor="${sess.length<2?"middle":i===0?"start":i===sess.length-1?"end":"middle"}">${fDMs.format(parseISO(sess[i].date))}</text>`).join("");
   if(pts.length>1)g+=`<path d="M${pts.map(p=>p.join(",")).join("L")}L${pts[pts.length-1][0]},${Hh-B}L${pts[0][0]},${Hh-B}Z" fill="var(--band)"/><polyline points="${pts.map(p=>p.join(",")).join(" ")}" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round"/>`;
   const best=Math.max(...vals);
-  g+=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${i===pts.length-1?6:4.5}" fill="${vals[i]===best?"var(--over)":"var(--acc)"}" stroke="var(--surface)" stroke-width="2" data-pt="${i}" style="cursor:pointer"><title>${fDM.format(parseISO(sess[i].date))}: ${fmtMetric(k,vals[i])} (${esc(setsText(sess[i].sets))})</title></circle>`).join("");
+  g+=pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="${i===pts.length-1?6:4.5}" fill="${vals[i]===best?"var(--over)":"var(--acc)"}" stroke="var(--surface)" stroke-width="2" data-pt="${i}" style="cursor:pointer"><title>${fDM.format(parseISO(sess[i].date))}: ${fmtMetric(k,vals[i])} (${esc(setsText(sess[i].sets,PU))})</title></circle>`).join("");
   return `<svg class="chart" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="График: ${METRICS[k].name}">${g}</svg>`;
 }
 function renderProg(){
   const v=$("view-prog");
   if(S.prog){renderProgDetail(v);return}
   const ids=[...new Set(entries().map(e=>e.ex))].filter(id=>exById(id));
-  const rows=ids.map(id=>({id,ex:exById(id),sess:sessionsFor(id)})).filter(r=>r.sess.length).sort((a,b)=>b.sess[b.sess.length-1].date.localeCompare(a.sess[a.sess.length-1].date));
+  const rows=ids.map(id=>{const u=unitsFor(id)[0]||"kg";return{id,ex:exById(id),u,sess:sessionsFor(id,u)}}).filter(r=>r.sess.length).sort((a,b)=>b.sess[b.sess.length-1].date.localeCompare(a.sess[a.sess.length-1].date));
   if(!rows.length){v.innerHTML=`<div class="panel empty"><h2>Прогресса пока нет</h2><p class="muted" style="margin:0 auto;max-width:46ch">Когда отметишь подходы хотя бы в одной тренировке, здесь появится каждое упражнение: график, рекорды и все подходы таблицей.</p></div>`;return}
   const q=(S.progQ||"").toLowerCase();
   v.innerHTML=`<p class="hint" style="margin:0">Все упражнения, которые ты делал. Справа — главный показатель последней тренировки и изменение к прошлой. Нажми, чтобы открыть график и таблицу.</p>
   <input type="search" id="progQ" placeholder="Найти упражнение" aria-label="Поиск" value="${esc(S.progQ||"")}">
   <div class="plist" id="plist">${rows.filter(r=>exMatch(r.ex,q)).map(r=>{
-    const k=autoMetric(r.sess),vals=r.sess.map(METRICS[k].get),last=vals[vals.length-1],prev=vals.length>1?vals[vals.length-2]:null;
+    PU=r.u;const k=autoMetric(r.sess),vals=r.sess.map(METRICS[k].get),last=vals[vals.length-1],prev=vals.length>1?vals[vals.length-2]:null;
     const d=prev!=null?last-prev:null;const isPR=vals.length>1&&d>0&&last>=Math.max(...vals.slice(0,-1));
     const dTxt=d==null?`<span class="hint">${k==="e1rm"?"1ПМ":"повторы"}</span>`:isPR?`<span class="pill pr">рекорд +${nf.format(Math.round(d*10)/10)}</span>`:d>0?`<span class="pill up">+${nf.format(Math.round(d*10)/10)}</span>`:d<0?`<span class="pill down">${nf.format(Math.round(d*10)/10)}</span>`:`<span class="hint">без изменений</span>`;
     return `<button class="prow" data-ex="${esc(r.id)}"><span><span class="nm">${esc(r.ex.name)}</span><br><span class="sub">${r.sess.length} ${plural(r.sess.length,"тренировка","тренировки","тренировок")} · последняя ${fDMs.format(parseISO(r.sess[r.sess.length-1].date))}</span></span>${sparkSVG(vals.slice(-10))}<span class="val">${fmtMetric(k,last)}<small>${dTxt}</small></span></button>`}).join("")||`<p class="muted">Ничего не нашлось.</p>`}</div>`;
 }
 function renderProgDetail(v){
-  const ex=exById(S.prog);const sess=sessionsFor(S.prog);
+  const ex=exById(S.prog);const us=unitsFor(S.prog);if(!us.includes(S.progUnit))S.progUnit=us[0]||"kg";PU=S.progUnit;const sess=sessionsFor(S.prog,PU);const us_=UNITS[PU].s;
   let h=`<div class="row"><button class="btn small" data-act="back">‹ Все упражнения</button></div>
   <div class="row" style="gap:12px;flex-wrap:nowrap">${miniMaps(ex)}<div style="min-width:0"><h2>${esc(ex?ex.name:"")}</h2><div class="chips" style="margin-top:6px">${ex?chipsFor(ex):""}</div></div></div>`;
+  if(us.length>1)h+=`<div class="stack" style="gap:6px"><div class="seg" role="group" aria-label="Единица">${us.map(x=>`<button data-unit="${x}" aria-pressed="${x===PU}">В ${UNITS[x].n}</button>`).join("")}</div><span class="hint">Это упражнение записано в разных единицах. Графики считаются отдельно для каждой.</span></div>`;
   if(!sess.length){v.innerHTML=h+`<div class="panel empty"><h2>Ещё нет выполненных подходов</h2><p class="muted" style="margin:0">Добавь это упражнение в тренировку и отметь подходы.</p></div>`;return}
   const withW=sess.some(s=>s.top>0);
   const k=S.metric==="auto"||(!withW&&S.metric!=="reps")?autoMetric(sess):S.metric;
   const bestTopS=sess.reduce((b,s)=>s.top>b.top?s:b,sess[0]),bestE=sess.reduce((b,s)=>s.e1rm>b.e1rm?s:b,sess[0]),bestVol=Math.max(...sess.map(s=>s.vol)),bestReps=Math.max(...sess.map(s=>s.maxReps));
   const first=METRICS[k].get(sess[0]),last=METRICS[k].get(sess[sess.length-1]);
   const change=sess.length>1&&first>0?Math.round((last-first)/first*100):null;
-  h+=`<div class="prtiles">${withW?`<div><span class="label">Лучший вес</span><b>${nf.format(bestTopS.top)} кг</b><small>${fDMs.format(parseISO(bestTopS.date))}</small></div>
-    <div><span class="label">Лучший 1ПМ</span><b>${nf.format(Math.round(bestE.e1rm))} кг</b><small>${nf.format(bestE.best.w)} кг × ${bestE.best.r}</small></div>
-    <div><span class="label">Макс. объём</span><b>${nf.format(Math.round(bestVol))} кг</b><small>за тренировку</small></div>`:
+  h+=`<div class="prtiles">${withW?`<div><span class="label">Лучший вес</span><b>${nf.format(bestTopS.top)} ${us_}</b><small>${fDMs.format(parseISO(bestTopS.date))}</small></div>
+    <div><span class="label">Лучший 1ПМ</span><b>${nf.format(Math.round(bestE.e1rm))} ${us_}</b><small>${nf.format(bestE.best.w)} ${us_} × ${bestE.best.r}</small></div>
+    <div><span class="label">Макс. объём</span><b>${nf.format(Math.round(bestVol))} ${us_}</b><small>за тренировку</small></div>`:
     `<div><span class="label">Макс. повторов</span><b>${bestReps}</b><small>в одном подходе</small></div><div><span class="label">Лучшая сумма</span><b>${Math.max(...sess.map(s=>s.totalReps))}</b><small>повторов за тренировку</small></div><div><span class="label">Тренировок</span><b>${sess.length}</b><small>всего</small></div>`}
     <div><span class="label">С первой записи</span><b>${change==null?"—":(change>0?"+":"")+change+"%"}</b><small>${change==null?"нужна ещё тренировка":METRICS[k].name.toLowerCase()}</small></div></div>`;
   h+=`<div class="panel stack"><div class="seg" role="group" aria-label="Показатель">${Object.entries(METRICS).filter(([key])=>withW||key==="reps").map(([key,m])=>`<button data-metric="${key}" aria-pressed="${key===k}">${m.name}</button>`).join("")}</div>
@@ -901,13 +1016,14 @@ function renderProgDetail(v){
   const rev=sess.slice().reverse();
   h+=`<div class="panel stack"><div class="spread"><h2>Все подходы</h2><span class="hint">нажми на строку, чтобы открыть тренировку</span></div><div class="tablewrap"><table class="sess"><thead><tr><th>Дата</th><th>Подходы</th>${withW?`<th class="r">Макс.</th><th class="r">1ПМ</th><th class="r">Объём</th>`:`<th class="r">Сумма</th>`}</tr></thead><tbody>${rev.map((s,i)=>{
     const prev=rev[i+1];const dm=prev?METRICS[k].get(s)-METRICS[k].get(prev):0;
-    return `<tr data-day="${s.date}"><td style="white-space:nowrap">${fDMs.format(parseISO(s.date))}${s===bestE&&withW?' <span class="pill pr">PR</span>':""}</td><td class="sets">${esc(setsText(s.sets))}</td>${withW?`<td class="r">${nf.format(s.top)}</td><td class="r">${nf.format(Math.round(s.e1rm))}${dm>0?` <span style="color:var(--good)" aria-label="рост">▲</span>`:dm<0?` <span style="color:var(--bad)" aria-label="спад">▼</span>`:""}</td><td class="r">${nf.format(Math.round(s.vol))}</td>`:`<td class="r">${s.totalReps}${dm>0?` <span style="color:var(--good)">▲</span>`:dm<0?` <span style="color:var(--bad)">▼</span>`:""}</td>`}</tr>`}).join("")}</tbody></table></div></div>`;
+    return `<tr data-day="${s.date}"><td style="white-space:nowrap">${fDMs.format(parseISO(s.date))}${s===bestE&&withW?' <span class="pill pr">PR</span>':""}</td><td class="sets">${esc(setsText(s.sets,PU))}</td>${withW?`<td class="r">${nf.format(s.top)}</td><td class="r">${nf.format(Math.round(s.e1rm))}${dm>0?` <span style="color:var(--good)" aria-label="рост">▲</span>`:dm<0?` <span style="color:var(--bad)" aria-label="спад">▼</span>`:""}</td><td class="r">${nf.format(Math.round(s.vol))}</td>`:`<td class="r">${s.totalReps}${dm>0?` <span style="color:var(--good)">▲</span>`:dm<0?` <span style="color:var(--bad)">▼</span>`:""}</td>`}</tr>`}).join("")}</tbody></table></div></div>`;
   v.innerHTML=h;
 }
 $("view-prog").addEventListener("click",e=>{
   const row=e.target.closest(".prow");if(row){S.prog=row.dataset.ex;S.metric="auto";renderProg();window.scrollTo(0,0);return}
   if(e.target.closest("[data-act='back']")){S.prog=null;renderProg();return}
   const m=e.target.closest("[data-metric]");if(m){S.metric=m.dataset.metric;renderProg();return}
+  const un=e.target.closest("[data-unit]");if(un){S.progUnit=un.dataset.unit;renderProg();return}
   const pt=e.target.closest("[data-pt]");if(pt){$("chartRead").textContent=pt.querySelector("title").textContent;return}
   const tr=e.target.closest("tr[data-day]");if(tr){S.day=tr.dataset.day;S.tab="train";render();window.scrollTo(0,0)}
 });
@@ -968,6 +1084,13 @@ $("openHelp").onclick=()=>openSheet("Как пользоваться",`<div clas
   <li>В строке подхода впиши вес и повторы. Серые цифры — что было в прошлый раз. Если сделал так же, просто нажми галочку: цифры подставятся, строка станет зелёной.</li>
   <li>После галочки внизу идёт таймер отдыха. «+30 с» добавляет время, «Готово» закрывает.</li></ol>
   <p class="hint">Кнопки «Сохранить» нет: всё записывается само. В статистику идут только подходы, где есть повторы.</p>
+  <h3>Свои шаблоны</h3>
+  <ol><li>На пустом дне нажми «+ Новый шаблон» или «Изменить» у существующего. На дне с упражнениями: «+ Из шаблона».</li>
+  <li>Добавь упражнения, задай подходы, повторы, вес и отдых. Порядок меняется стрелками.</li>
+  <li>В день тренировки нажми «Начать»: всё появится с весами из шаблона, дальше правь как обычно.</li>
+  <li>Готовую тренировку можно превратить в шаблон кнопкой «Сохранить как шаблон» внизу дня.</li></ol>
+  <h3>Единицы веса</h3>
+  <p>Нажми на «Вес, кг ▾» над подходами, чтобы переключить: кг → плитки → фунты. Плитки — номер на стеке блочного тренажёра. Единица запоминается для упражнения. В тоннаж плитки не идут, а прогресс по ним считается отдельно.</p>
   <h3>Исправить или удалить</h3>
   <ol><li>Открой день в полоске или в списке «Все тренировки» внизу экрана.</li>
   <li>Цифры правятся прямо в строках. «×» убирает подход, «Убрать упражнение» — упражнение целиком.</li>
@@ -1004,7 +1127,7 @@ $("openData").onclick=()=>{
     if(t.id==="importHide"){await put("meta_import1",{kind:"meta",skipped:true});closeSheet()}
     if(t.id==="importGo"){t.disabled=true;let n=0;
       for(const d of IMPORT){const date=$("imp-"+d.key).value;if(!date)continue;
-        d.items.forEach(([ex,sets,note],i)=>{const body={kind:"log",date,ex,sets:sets.map(([r,w])=>({r,w:w||null})),t:new Date(Date.now()+i).toISOString(),o:i};if(note)body.note=note;put(uid("w_"),body);n++})}
+        d.items.forEach(([ex,sets,note],i)=>{const body={kind:"log",pid:S.pid,date,ex,sets:sets.map(([r,w])=>({r,w:w||null})),t:new Date(Date.now()+i).toISOString(),o:i};if(note)body.note=note;put(uid("w_"),body);n++})}
       await Promise.all(Object.values(chains));await put("meta_import1",{kind:"meta",done:true});toast("Добавлено записей: "+n);closeSheet();render()}
   });
   sh.addEventListener("change",async e=>{if(e.target.id!=="importFile")return;const f=e.target.files&&e.target.files[0];e.target.value="";if(f){await importBackup(f);closeSheet();render()}});
@@ -1030,8 +1153,59 @@ async function importBackup(f){
   toast(n?"Загружено: "+n+(skip?", пропущено: "+skip:""):"Нового ничего нет, всё уже есть");
 }
 
+/* ================= profiles ================= */
+async function switchProfile(id){
+  await flushAll();S.pid=id;lsSet("podhody.profile",id);
+  S.prog=null;S.day=today();S.sel=null;S.confirm=null;S.tplName=null;S.tplEdit=null;S.histMore=false;
+  closeSheet();render();window.scrollTo(0,0);toast("Профиль: "+(curProfile().name||""));
+}
+function profileSheetHTML(){
+  const all=allEntries();
+  return `<p class="hint" style="margin:0">У каждого профиля свои тренировки, шаблоны и прогресс. Свои упражнения из библиотеки общие для всех.</p>
+  <div class="plistp">${profiles().map(p=>{const n=new Set(all.filter(e=>pidOf(e)===p.id).map(e=>e.date)).size;const cur=p.id===S.pid;
+    let tail;
+    if(S.confirm==="prdel:"+p.id)tail=`<div class="confirmrow wide">Удалить профиль «${esc(p.name)}» и все его тренировки (${n})? Вернуть не получится. <button class="btn small danger" data-pact="del-ok" data-id="${p.id}">Удалить</button><button class="btn small ghost" data-pact="cancel">Нет</button></div>`;
+    else if(S.confirm==="prren:"+p.id)tail=`<div class="confirmrow wide"><input id="prRename" value="${esc(p.name)}" maxlength="30" style="flex:1;min-width:140px" aria-label="Новое имя"><button class="btn small primary" data-pact="ren-ok" data-id="${p.id}">Сохранить</button><button class="btn small ghost" data-pact="cancel">Отмена</button></div>`;
+    else tail="";
+    return `<div class="pitem${cur?" cur":""}">${avaHTML(p,true)}<div style="min-width:0"><div class="nm">${esc(p.name)}${cur?' <span class="pill up">сейчас</span>':""}</div><div class="hint">${n} ${plural(n,"тренировка","тренировки","тренировок")}</div></div>
+      <div class="acts">${cur?"":`<button class="btn small primary" data-pact="use" data-id="${p.id}">Выбрать</button>`}<button class="btn small ghost" data-pact="ren" data-id="${p.id}">Имя</button>${p.id===MAINP?"":`<button class="btn small ghost danger" data-pact="del" data-id="${p.id}">Удалить</button>`}</div>${tail}</div>`}).join("")}</div>
+  <form class="panel stack" id="prAdd" novalidate><h3>Новый профиль</h3>
+    <input id="prName" maxlength="30" placeholder="Имя, например Аня" aria-label="Имя профиля">
+    <label class="row" style="gap:8px;font-size:14px"><input type="checkbox" id="prCopy" checked> Скопировать шаблоны из профиля «${esc(curProfile().name)}»</label>
+    <div><button class="btn primary" type="submit">Добавить и переключиться</button></div></form>`;
+}
+$("openProfiles").onclick=()=>{
+  S.confirm=null;
+  const sh=openSheet("Профили",`<div class="stack" id="prBody">${profileSheetHTML()}</div>`);
+  const redraw=()=>{sh.querySelector("#prBody").innerHTML=profileSheetHTML()};
+  sh.addEventListener("click",async e=>{
+    const b=e.target.closest("[data-pact]");if(!b)return;const id=b.dataset.id;
+    switch(b.dataset.pact){
+      case "use":S.confirm=null;await switchProfile(id);return;
+      case "cancel":S.confirm=null;break;
+      case "ren":S.confirm="prren:"+id;redraw();const i=sh.querySelector("#prRename");if(i){i.focus();i.select()}return;
+      case "ren-ok":{const v=(sh.querySelector("#prRename").value||"").trim();if(!v){toast("Имя не может быть пустым");return}
+        const p=profiles().find(x=>x.id===id);await put(id,{kind:"profile",name:v,c:p.c||0,t:p.t||new Date().toISOString()});S.confirm=null;renderProfileBar();break}
+      case "del":S.confirm="prdel:"+id;break;
+      case "del-ok":{for(const [k,d] of [...docs.entries()])if((d.kind==="log"||d.kind==="tpl")&&pidOf(d)===id)await remove(k);
+        await remove(id);S.confirm=null;toast("Профиль удалён");if(S.pid===id){await switchProfile(MAINP);return}break}
+    }
+    redraw();
+  });
+  sh.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="prRename"){e.preventDefault();sh.querySelector('[data-pact="ren-ok"]').click()}});
+  sh.addEventListener("submit",async e=>{e.preventDefault();
+    const name=(sh.querySelector("#prName").value||"").trim();if(!name){toast("Впиши имя");sh.querySelector("#prName").focus();return}
+    const used=new Set(profiles().map(p=>p.c||0));let c=0;while(used.has(c)&&c<AVA.length-1)c++;
+    const id=uid("p_");await put(id,{kind:"profile",name,c,t:new Date().toISOString()});
+    if(sh.querySelector("#prCopy").checked){let o=0;for(const t of templates())await put(uid("tpl_"),{kind:"tpl",pid:id,name:t.name,o:o++,items:clean(t.items||[])})}
+    await switchProfile(id);
+  });
+};
+
 /* ================= render ================= */
+function renderProfileBar(){const p=curProfile();const a=$("profAva");a.textContent=(p.name||"?").trim().charAt(0).toUpperCase()||"?";a.style.background=AVA[(p.c||0)%AVA.length];$("profName").textContent=p.name||"Без имени"}
 function render(){
+  renderProfileBar();
   for(const t of ["train","week","prog","lib"]){$("view-"+t).hidden=S.tab!==t;$("tab-"+t).setAttribute("aria-selected",S.tab===t)}
   if(!ready){$("view-train").innerHTML=`<div class="panel empty"><p class="muted" style="margin:0">Загружаю записи…</p></div>`;return}
   if(S.tab==="train")renderTrain();
@@ -1044,6 +1218,7 @@ document.querySelector("nav.tabs").addEventListener("click",async e=>{const b=e.
   if(b.dataset.tab==="week"&&S.tab!=="week")S.weekStart=mondayOf(S.day?parseISO(S.day):new Date());
   S.tab=b.dataset.tab;render();window.scrollTo(0,0)});
 
+S.pid=lsGet("podhody.profile")||MAINP;
 render();
 boot();
 })();
