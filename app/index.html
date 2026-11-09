@@ -24,8 +24,8 @@
   --bg:#EEF1F4; --surface:#FFFFFF; --sunk:#E3E8ED; --line:#D3DAE1;
   --fg:#15202B; --muted:#5B6874; --faint:#8994A0;
   --acc:#2550C8; --acc-ink:#FFFFFF; --acc-soft:#A9BCF0;
-  --m0:#D6DDE4; --body:#C4CDD6;
-  --h1:#C9D6F6; --h2:#8DA8EC; --h3:#2F5BD3; --over:#E08A1E;
+  --m0:#CDB9B3; --skin:#E6D3C8; --deep:#B98172; --mline:#8C4E40; --tendon:#F4ECE6; --bone:#ECE6DE;
+  --h1:#F1B39E; --h2:#E46E52; --h3:#C42A1A; --over:#7A0F08; --mus-p:#C42A1A; --mus-s:#EE9E87;
   --good:#1D8A4E; --good-soft:#D5F0E0; --bad:#C23A2B; --bad-soft:#F7D9D4;
   --band:rgba(37,80,200,.12); --scrim:rgba(15,21,28,.45);
   --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
@@ -36,16 +36,16 @@
   --bg:#0F151C; --surface:#18212B; --sunk:#121A22; --line:#2A3542;
   --fg:#E7ECF1; --muted:#9AA7B4; --faint:#6E7B88;
   --acc:#6F95FF; --acc-ink:#0B1220; --acc-soft:#34508F;
-  --m0:#2A3644; --body:#212C38;
-  --h1:#2A3E6B; --h2:#3E62B8; --h3:#7A9CFF; --over:#F0A040;
+  --m0:#5A4B48; --skin:#3A3236; --deep:#4A302B; --mline:#1A0F0D; --tendon:#B9ADA6; --bone:#A69C93;
+  --h1:#7E3427; --h2:#B8402B; --h3:#E8513A; --over:#FF9A6A; --mus-p:#E8513A; --mus-s:#9A4A3C;
   --good:#4CC38A; --good-soft:#173A2A; --bad:#FF7A6B; --bad-soft:#4A221D;
   --band:rgba(111,149,255,.14); --scrim:rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F151C; --surface:#18212B; --sunk:#121A22; --line:#2A3542;
   --fg:#E7ECF1; --muted:#9AA7B4; --faint:#6E7B88;
   --acc:#6F95FF; --acc-ink:#0B1220; --acc-soft:#34508F;
-  --m0:#2A3644; --body:#212C38;
-  --h1:#2A3E6B; --h2:#3E62B8; --h3:#7A9CFF; --over:#F0A040;
+  --m0:#5A4B48; --skin:#3A3236; --deep:#4A302B; --mline:#1A0F0D; --tendon:#B9ADA6; --bone:#A69C93;
+  --h1:#7E3427; --h2:#B8402B; --h3:#E8513A; --over:#FF9A6A; --mus-p:#E8513A; --mus-s:#9A4A3C;
   --good:#4CC38A; --good-soft:#173A2A; --bad:#FF7A6B; --bad-soft:#4A221D;
   --band:rgba(111,149,255,.14); --scrim:rgba(0,0,0,.6); color-scheme:dark}
 
@@ -95,8 +95,8 @@ input::placeholder{color:var(--faint)}
 .err{color:var(--bad);font-size:13px}
 .chips{display:flex;flex-wrap:wrap;gap:5px}
 .chip{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--sunk);color:var(--muted);border:1px solid transparent}
-.chip.p{background:var(--acc);color:var(--acc-ink)}
-.chip.s{background:transparent;border-color:var(--acc-soft);color:var(--fg)}
+.chip.p{background:var(--mus-p);color:#fff}
+.chip.s{background:transparent;border-color:var(--mus-s);color:var(--fg)}
 .pill{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
 .pill.pr{background:var(--over);color:#1A1205}
 .pill.up{background:var(--good-soft);color:var(--good)}
@@ -105,10 +105,18 @@ input::placeholder{color:var(--faint)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
 
 /* body map */
-svg.body{width:100%;height:auto;display:block;max-width:220px;margin:0 auto}
-svg.body .mus{stroke:var(--surface);stroke-width:1;stroke-linejoin:round;transition:fill .2s}
+svg.body{width:100%;height:auto;display:block;max-width:250px;margin:0 auto}
+svg.body .skin{fill:var(--skin)}
+svg.body .deep{fill:var(--deep)}
+svg.body .dec{fill:var(--m0);stroke:var(--mline);stroke-width:.35;stroke-opacity:.6}
+svg.body .mus{stroke:var(--mline);stroke-width:.4;stroke-opacity:.7;stroke-linejoin:round;transition:fill .2s}
+svg.body.lite .mus{stroke-width:.8}
 svg.body.clickable .mus{cursor:pointer}
-svg.body .mus.sel{stroke:var(--fg);stroke-width:1.8}
+svg.body .mus.sel{stroke:var(--fg);stroke-width:1.4;stroke-opacity:1}
+svg.body .ov{pointer-events:none}
+svg.body .bone{fill:var(--bone);stroke:var(--mline);stroke-width:.3;stroke-opacity:.5;opacity:.85}
+svg.body .tend{fill:none;stroke:var(--tendon);stroke-width:.7;stroke-opacity:.8}
+svg.body .navel{fill:var(--mline);opacity:.5}
 .mini{display:flex;gap:2px;flex:none}
 .mini svg.body{width:34px;margin:0}
 
@@ -327,7 +335,7 @@ button.chip{cursor:pointer;font:500 13px var(--f-body);padding:6px 11px}
   <section id="view-prog" class="stack" hidden></section>
   <section id="view-lib" class="stack" hidden>
     <div class="libtools">
-      <input type="search" id="libSearch" placeholder="Найти упражнение или мышцу" aria-label="Поиск">
+      <input type="search" id="libSearch" placeholder="Поиск: «молотки», «ягодицы», «тяга блока»…" aria-label="Поиск">
       <button class="btn primary" id="newEx">+ Своё упражнение</button>
     </div>
     <form class="panel stack" id="exForm" hidden novalidate>
@@ -343,8 +351,8 @@ button.chip{cursor:pointer;font:500 13px var(--f-body);padding:6px 11px}
       <div class="row"><button type="submit" class="btn primary">Сохранить</button><button type="button" class="btn ghost" id="exCancel">Отмена</button></div>
     </form>
     <div class="legend" style="justify-content:flex-start">
-      <span><i style="background:var(--acc)"></i>основная мышца</span>
-      <span><i style="background:var(--acc-soft)"></i>вспомогательная</span>
+      <span><i style="background:var(--mus-p)"></i>основная мышца</span>
+      <span><i style="background:var(--mus-s)"></i>вспомогательная</span>
     </div>
     <div id="lib"></div>
   </section>
@@ -379,61 +387,97 @@ const LEGACY={quads:["rectfem","vlat","vmed"],hams:["bfem","semit"],calves:["gas
 const norm=a=>[...new Set((a||[]).flatMap(k=>LEGACY[k]||[k]).filter(k=>MNAME[k]))];
 
 /* ================= body map ================= */
-const M=(k,pts,mirror=true)=>({m:k,pts,mirror});
-const SHAPES={
-  front:[
-    M("traps",[[86,60],[93,62],[93,66],[76,70]]),
-    M("chest",[[78,74],[98,76],[98,110],[86,116],[74,110],[70,100],[76,86]]),
-    M("mdelt",[[56,76],[60,74],[56,96],[49,104],[47,90]]),
-    M("fdelt",[[60,74],[74,70],[78,82],[68,100],[56,96]]),
-    M("biceps",[[56,102],[68,100],[67,128],[61,140],[55,132],[54,112]]),
-    M("brachialis",[[50,106],[54,112],[55,132],[61,140],[57,147],[49,141],[47,124]]),
-    M("brachiorad",[[47,143],[57,147],[52,166],[45,182],[42,166]]),
-    M("wflex",[[57,147],[64,150],[58,172],[54,192],[44,190],[45,182],[52,166]]),
-    M("obliques",[[72,114],[86,120],[88,176],[78,180],[72,150]]),
-    M("abs",[[90,118],[110,118],[110,178],[90,178]],false),
-    M("adductors",[[93,198],[100,201],[100,234],[96,236],[90,240]]),
-    M("vlat",[[72,188],[80,194],[82,238],[80,266],[74,262],[69,226]]),
-    M("rectfem",[[80,194],[93,198],[90,240],[84,258],[82,238]]),
-    M("vmed",[[90,240],[96,236],[97,262],[90,272],[84,266],[84,258]]),
-    M("tibant",[[74,290],[82,288],[81,330],[78,360],[74,340],[72,312]]),
-    M("gastro",[[83,290],[94,292],[94,320],[87,330],[83,318]]),
-    M("soleus",[[83,320],[87,330],[94,320],[93,346],[86,368],[81,360],[81,338]])
-  ],
-  back:[
-    M("lowback",[[89,134],[111,134],[113,176],[87,176]],false),
-    M("lats",[[76,82],[90,80],[96,120],[92,146],[80,140],[72,112]]),
-    M("traps",[[100,56],[90,62],[74,70],[88,78],[94,110],[100,124],[106,110],[112,78],[126,70],[110,62]],false),
-    M("mdelt",[[56,76],[60,74],[56,96],[49,104],[47,90]]),
-    M("rdelt",[[60,74],[74,72],[78,82],[68,100],[56,96]]),
-    M("triceps",[[52,104],[68,100],[67,130],[60,144],[50,138],[48,118]]),
-    M("wext",[[48,144],[60,148],[56,176],[52,192],[42,190],[42,168]]),
-    M("gmed",[[71,168],[88,166],[93,178],[75,186],[69,182]]),
-    M("gmin",[[68,184],[75,186],[73,198],[67,196]]),
-    M("gmax",[[75,186],[93,178],[99,186],[99,222],[82,226],[71,210],[73,198]]),
-    M("bfem",[[70,229],[83,229],[84,276],[76,268],[71,252]]),
-    M("semit",[[83,229],[97,229],[95,268],[87,278],[84,276]]),
-    M("gastro",[[72,286],[93,286],[94,316],[86,330],[80,326],[74,314]]),
-    M("soleus",[[74,316],[80,326],[86,330],[94,316],[92,344],[86,366],[80,366],[76,344]])
-  ]
+/* ===== anatomical body map (left half drawn, mirrored) ===== */
+const SIL="M100,13 C92,13 86,18 85.5,28 C85,38 87,47 91,52 L91.5,60 C86,64 78,66 68,68.5 C58,71 50,77 47.5,90 C46,104 46.5,120 45.5,134 C44,152 41,170 38.5,190 C37,203 36,214 37.5,224 C39,232 45,233 47.5,226 C49.5,218 50.5,208 52,198 C55,182 58,166 60.5,150 C62,140 63,130 64.5,122 C66,140 68.5,160 70,178 C68,196 65.5,214 65.5,236 C65.5,262 69,280 71.5,296 C71.5,320 73.5,345 75.5,370 C75.5,381 71,391 73.5,399 L94.5,399 C95.5,390 92.5,380 93.5,370 C94.5,345 96.5,320 96.5,296 C96.5,282 97.5,262 98.5,241 L100,237 Z";
+/* muscles: [key, path, fiberAngle] (left half, x<=100) */
+const MUS={
+front:[
+ ["traps","M91.5,58 C89,62.5 81,66 69.5,68.6 C79,70 88,68.6 93.5,66 C93,63 92.5,60.5 91.5,58 Z",15],
+ ["chest","M99.8,73.5 C93,71.8 83,71.6 76.5,76.5 C71.5,81 67.5,89 64.5,98.5 C69,104 77,113.5 87.5,118.6 C93.5,120.6 98.2,119.8 99.8,117.5 Z",-18],
+ ["mdelt","M68.5,68.8 C58,70.5 50,78 48.3,91 C47.8,101 51,109.5 57.5,115.5 C57.6,103 58.6,90 62.5,79.5 Z",78],
+ ["fdelt","M68.5,68.8 C73.5,69.4 77.6,73 78.6,78.6 C74.4,90.4 66.6,103.6 57.5,115.5 C57.6,103 58.6,90 62.5,79.5 Z",62],
+ ["biceps","M60.2,103.5 C64,108.5 64.4,123.5 62.3,137.6 C60.7,145.5 57,150 54.3,150.4 C52.2,140.5 51.8,124.5 53.6,112.4 C54.7,106.6 57.1,103.6 60.2,103.5 Z",90],
+ ["brachialis","M50.4,113.5 C52.5,122.5 52.3,139.5 54.3,150.4 C51.3,150.5 48.3,146.5 47.2,140.5 C46.9,130.5 47.8,121.5 50.4,113.5 Z",88],
+ ["brachiorad","M46.8,141.5 C50.8,145.4 54.1,149.8 55.2,155.6 C52.2,169.6 48.2,183.8 44.2,196.2 C41.9,186.2 42.6,168.2 44.6,154.2 Z",76],
+ ["wflex","M55.2,155.6 C57.6,152.2 59.6,150.4 60.3,151.4 C58.4,169.6 55.4,189.6 52.3,203.8 C49.4,206.2 46.2,204.2 44.2,200 C48.2,186 52.2,170 55.2,155.6 Z",82],
+ ["obliques","M71.6,116.8 C77.5,120.5 83.6,124.4 86.8,128.4 C87.9,148.4 87.9,168.4 86.1,187.6 C80.4,190.8 74.6,193 70.2,195 C71,178 72.2,160 71,142 C70.3,132 70.4,124 71.6,116.8 Z",55],
+ ["abs","M88.4,121.2 C93.2,120.6 97.2,120.8 99.8,121 L99.8,199 C96,197 92,193 90.2,187 C89.1,165 88.3,142 88.4,121.2 Z",90],
+ ["vlat","M67.6,207 C71.6,215 75.6,231 77.6,250 C78.6,264 78,276 76.2,288.5 C72.2,284.5 69.6,270.5 67.9,256.5 C65.9,240.5 65.9,222.5 67.6,207 Z",86],
+ ["rectfem","M75.8,200.5 C81.8,198.2 87.6,200 91.8,206 C91.8,226 89.8,250 86,276 C84.2,284 82.2,288 80.2,288.2 C79.2,270 78,250 76,232 C74.4,220 74.2,208 75.8,200.5 Z",90],
+ ["vmed","M90,248.5 C94,256 96.2,268 96.2,280.2 C94.2,288.2 89.8,292.2 84,290.4 C86,280 88,266 90,248.5 Z",65],
+ ["adductors","M92.2,204 C96.2,208.2 99.2,214 99.2,238 C98.2,244 96.2,248.2 91.8,256 C92,236 92,220 92.2,204 Z",72],
+ ["tibant","M78,304 C82,304 84,310 84,320 C83,340 81,356 79.8,368 C77.8,360 76,340 76,322 C76,312 76,306 78,304 Z",90],
+ ["gastro","M88.4,304 C93.2,306 96,316 96,330 C94,338 90.2,340.2 88.2,338.2 C87.2,326 87.2,314 88.4,304 Z",90],
+ ["soleus","M86.4,338.4 C90,342 93.6,340.4 95.2,336.4 C95,350 93,362 90,370.4 C88,360 86.2,350 86.4,338.4 Z",90]
+],
+back:[
+ ["traps","M100,47.5 C96.5,53.5 92.5,57.8 90.4,61.4 C82.4,65.8 74.4,67.8 66.6,70 C74.6,74 82.2,80 88.2,88 C92.2,100 96,120 100,148 Z",28],
+ ["mdelt","M68.5,68.8 C58,70.5 50,78 48.3,91 C47.8,101 51,109.5 57.5,115.5 C57.6,103 58.6,90 62.5,79.5 Z",78],
+ ["rdelt","M66.6,70.4 C72.6,72.4 78.2,78 80.2,86 C74.2,96 66.2,106 57.5,115.5 C57.6,104 59.6,88 62.5,79.5 Z",-60],
+ ["lats","M66.6,104.6 C73.2,109.6 83.4,113.6 92.4,114.4 C93,126 92.6,140 91.4,152 C88.6,163 84.4,174 79.6,185.4 C75,179 70.8,166 68.4,152 C66.4,138 65.4,120 66.6,104.6 Z",-50],
+ ["lowback","M93.2,132 C96,134 98.4,136 99.8,137 L99.8,196 C96.6,199.4 92.6,199.6 90.2,195.6 C89.6,176 90.8,152 93.2,132 Z",90],
+ ["triceps","M49.8,100 C55.8,97.8 61.8,99.6 64,104 C64.2,120 63.2,136 60.2,148 C56.2,150.2 50.2,148.2 48,144 C47,130 47,114 49.8,100 Z",90],
+ ["wext","M45.2,150 C50.2,150 55.8,152 60,154 C58,172 54.2,190 52,202 C48.2,204.2 44.2,202.2 42.2,198 C42,182 43,166 45.2,150 Z",80],
+ ["gmed","M70.2,181.6 C78.2,177.8 88.2,177.8 94.2,182 C90.2,190 82.2,196 74.2,200 C71.2,194 70.2,188 70.2,181.6 Z",60],
+ ["gmin","M66.8,197.6 C70.2,197.6 74,199.6 75,204 C72,210 69,212 66.8,212.2 C66.4,207 66.4,202 66.8,197.6 Z",45],
+ ["gmax","M74.2,200.6 C84.2,194.6 94.2,190.4 99.8,192.2 L99.8,236.4 C94.2,240.4 84.2,240.6 76.2,236.6 C72.2,226.6 72,212.6 74.2,200.6 Z",-35],
+ ["bfem","M70,240.6 C76,240.2 82,242 85.2,244.2 C85.2,262 84.2,278 82.2,292.2 C78.2,288.2 74,278 72,266 C70.2,256 69.8,248 70,240.6 Z",86],
+ ["semit","M86.2,244.2 C90.2,242.2 96,242.2 98.2,242.6 C98.2,262 96.2,280 92.2,294.2 C88.2,294.4 85.2,292.4 84,290 C85,276 86,260 86.2,244.2 Z",94],
+ ["gastro","M74.2,298 C80.2,294 85.8,295.6 88,300 C88,316 86,330 82.2,338.2 C78.2,336.2 74.2,326 73,314 C72.8,306 73,302 74.2,298 Z M89.2,300 C93.2,296 97.2,298 97.4,304 C97.4,318 95.4,330 91.2,340 C89.2,336 88.2,326 88.2,314 C88.4,308 88.6,303 89.2,300 Z",90],
+ ["soleus","M76.2,331 C80.2,338.6 86,342.4 92.2,342.4 C94.2,350 92.2,362 88.2,372 C84.2,372.2 80.2,370 78.2,364 C77.2,352 76.2,340 76.2,331 Z",90]
+]};
+/* neutral anatomy detail (not tracked) */
+const DECOR={
+front:[
+ "M69.6,104.5 C72.4,108.5 73.4,113.6 72.4,118.6 C70.6,115.6 69.4,110.6 69.6,104.5 Z", /* serratus */
+ "M72.6,118.8 C74.8,122.2 75.4,126.6 74.4,130.8 C72.4,127.8 71.8,123.2 72.6,118.8 Z",
+ "M68.8,186.4 C72.8,191.2 75.6,200.4 74.8,212.4 C71.4,208.4 68.6,200.4 67.6,192.4 Z", /* tfl */
+ "M62.4,122.2 C64.2,128 63.2,138 60.6,149.4 C59.6,146 60.6,138 62.4,122.2 Z", /* triceps medial */
+ "M90.6,51.4 C92.8,57.6 95.8,65 98.8,71.6 L96.2,72.2 C93.6,66 91,59.4 89.6,53.6 Z" /* sternocleidomastoid */
+],
+back:[
+ "M80.4,86.2 C86.2,90.2 91.6,96.2 92,108.2 C86.2,112.2 78.2,112.4 72.2,110.6 C72.4,100.2 75.8,92.2 80.4,86.2 Z", /* infraspinatus */
+ "M72.2,110.8 C78.2,112.4 84.2,112.4 89.2,112.4 C83.2,116.4 76.2,118.2 70.2,118.4 Z" /* teres */
+]};
+const LINES={ /* tendons, bones, separations (stroke only) */
+front:"M99.8,138 C96,138.6 92,138.6 88.6,137.6 M99.8,155.4 C96,156 92,156 88.8,155 M99.8,172 C96,172.6 92.4,172.6 89.6,171.6 M68,68.8 C76,66.4 86,66 92.6,66.6",
+back:"M100,48 L100,200 M92,140 C95,141 98,142 100,143"
 };
-const OUTLINE_L=[[100,54],[92,54],[92,64],[72,68],[56,76],[48,90],[46,130],[42,168],[38,196],[46,202],[54,192],[58,170],[64,148],[68,128],[70,150],[72,182],[68,222],[70,272],[72,336],[74,376],[70,396],[94,398],[94,376],[96,336],[98,280],[100,236]];
-const mir=p=>[200-p[0],p[1]];
-const ptsStr=a=>a.map(p=>p.join(",")).join(" ");
-const OUTLINE=ptsStr(OUTLINE_L.concat(OUTLINE_L.slice(0,-1).reverse().map(mir)));
-function bodySVG(view,fillFor,opts={}){
-  let s=`<svg class="body${opts.clickable?' clickable':''}" viewBox="34 6 132 396" role="img" aria-label="${view==='front'?'Мышцы спереди':'Мышцы сзади'}">`;
-  s+=`<polygon points="${OUTLINE}" fill="var(--body)"/><ellipse cx="100" cy="32" rx="17" ry="21" fill="var(--body)"/>`;
-  const selSet=opts.selected?(GMEM[opts.selected]||[opts.selected]):[];
-  for(const sh of SHAPES[view]){
-    const f=fillFor(sh.m),sel=selSet.includes(sh.m)?' sel':'',t=`<title>${MNAME[sh.m]}</title>`;
-    s+=`<polygon class="mus${sel}" data-m="${sh.m}" points="${ptsStr(sh.pts)}" fill="${f}">${t}</polygon>`;
-    if(sh.mirror)s+=`<polygon class="mus${sel}" data-m="${sh.m}" points="${ptsStr(sh.pts.map(mir))}" fill="${f}">${t}</polygon>`;
-  }
-  return s+"</svg>";
+const BONE={ /* kneecap, achilles etc */
+front:"M88.2,291 C91.6,291 93.4,294.4 93.2,298.6 C92.8,302.4 90.4,304.4 87.8,304.2 C85.2,303.8 83.6,301.2 84,297.6 C84.4,293.6 86,291 88.2,291 Z M84.6,306 C85.8,324 86.2,348 87.2,368 L86.2,368 C85,348 84.4,324 83.6,306.2 Z",
+back:"M87.2,346 C87.8,354 88,363 87.8,372 L89,372 C89.2,363 89.4,354 89.8,346.2 Z"
+};
+const HAND="M43.6,199 C47.6,205.6 51,205.2 52.4,202.6 C51.4,211 50,219 47.5,226 C45,233 39,232.6 37.5,224 C36.6,215 37.6,206 39.6,197.6 Z";
+const FOOT="M75.4,366.4 C80.6,371 89.6,371 93.8,366.4 C93,379 95.4,390 94.5,399 L73.5,399 C71,391 75.4,380 75.4,366.4 Z";
+const FIB_ANGLES=[...new Set(Object.values(MUS).flat().map(m=>m[2]))];
+function anatDefs(){
+  return `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <radialGradient id="mshade" cx=".42" cy=".36" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+  <radialGradient id="skinshade" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></radialGradient>
+  ${FIB_ANGLES.map(a=>`<pattern id="fib${String(a).replace("-","m")}" width="1.15" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(${a-90})"><path d="M0.3,0 L0.3,6" stroke="#2a0a04" stroke-opacity=".16" stroke-width=".3"/><path d="M0.85,0 L0.85,6" stroke="#fff" stroke-opacity=".1" stroke-width=".22"/></pattern>`).join("")}
+  </defs></svg>`;
 }
-const exFill=ex=>m=>ex&&ex.p.includes(m)?"var(--acc)":ex&&ex.s.includes(m)?"var(--acc-soft)":"var(--m0)";
-const miniMaps=ex=>`<div class="mini" aria-hidden="true">${bodySVG("front",exFill(ex))}${bodySVG("back",exFill(ex))}</div>`;
+function bodySVG(view,fillFor,opts={}){
+  const lite=!!opts.lite;
+  const selSet=opts.selected?(GMEM[opts.selected]||[opts.selected]):[];
+  let half=`<path class="deep" d="${SIL}"/><path class="skin" d="${HAND}"/><path class="skin" d="${FOOT}"/>`;
+  if(!lite)half+=DECOR[view].map(d=>`<path class="dec" d="${d}"/>`).join("");
+  for(const [m,d,a] of MUS[view]){
+    const sel=selSet.includes(m)?" sel":"";
+    half+=`<path class="mus${sel}" data-m="${m}" d="${d}" fill="${fillFor(m)}"><title>${MNAME[m]}</title></path>`;
+    if(!lite)half+=`<path class="ov" d="${d}" fill="url(#fib${String(a).replace("-","m")})"/>`;
+    half+=`<path class="ov" d="${d}" fill="url(#mshade)"/>`;
+  }
+  if(!lite)half+=`<path class="bone" d="${BONE[view]}"/><path class="tend" d="${LINES[view]}"/>`;
+  const head=view==="front"
+    ?`<ellipse class="skin" cx="100" cy="31.6" rx="15.4" ry="20"/>`
+    :`<ellipse class="skin" cx="100" cy="31.6" rx="15.4" ry="20"/>`;
+  return `<svg class="body anat${opts.clickable?" clickable":""}${lite?" lite":""}" viewBox="34 9 132 393" role="img" aria-label="${view==="front"?"Мышцы спереди":"Мышцы сзади"}"><g>${half}</g><g transform="matrix(-1 0 0 1 200 0)">${half}</g>${head}${view==="front"&&!lite?`<path class="tend" d="M100,121 L100,198"/><circle class="navel" cx="100" cy="176" r="1.2"/>`:""}</svg>`;
+}
+
+const exFill=ex=>m=>ex&&ex.p.includes(m)?"var(--mus-p)":ex&&ex.s.includes(m)?"var(--mus-s)":"var(--m0)";
+const miniMaps=ex=>`<div class="mini" aria-hidden="true">${bodySVG("front",exFill(ex),{lite:true})}${bodySVG("back",exFill(ex),{lite:true})}</div>`;
+document.body.insertAdjacentHTML("afterbegin",anatDefs());
 
 /* ================= exercises ================= */
 const Q=["rectfem","vlat","vmed"],H=["bfem","semit"];
@@ -553,7 +597,45 @@ const num=v=>{if(v===""||v==null)return null;const n=+String(v).replace(",",".")
 const inNum=v=>v==null||!(+v>0)?"":String(v).replace(".",",");
 let toastT;function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2600)}
 const nrm=t=>String(t||"").toLowerCase().replace(/ё/g,"е");
-const exMatch=(e,q)=>{const w=nrm(q).split(/\s+/).filter(Boolean);if(!w.length)return true;const hay=nrm(e.name+" "+e.p.concat(e.s).map(m=>MNAME[m]+" "+GNAME[GOF[m]]).join(" "));return w.every(x=>hay.includes(x))};
+/* ---- search: stems, slang, typos, wrong keyboard layout ---- */
+const ALIAS={bench:"жим лежа штанга грудь бенч горизонтальная скамья",incdb:"наклонная наклонной верх груди гантели жим",dips:"брусья брусьях отжимания",fly:"разводка разводки бабочка грудь гантели",pushup:"отжимания пол",
+ dbpress:"жим сидя плечи дельты гантели",latraise:"махи разведения стороны дельты средние плечи гантели",revfly:"задняя дельта разведения наклоне махи",
+ pullup:"турник подтягивание гравитрон широкий хват",pullupn:"турник подтягивание параллельный узкий хват гравитрон",latpd:"верхний блок вертикальная тяга груди широчайшие спина",
+ bbrow:"тяга наклоне штанга спина",dbrow:"тяга гантели одной рукой спина",cabrow:"горизонтальная тяга нижний блок гребля сидя спина",kbshrug:"шраги гантели гири трапеция",
+ rdl:"румынка румынская мертвая становая тяга гантели штанга",hyper:"гиперка гиперэкстензия поясница спина",squat:"присед приседания штанга ноги",legpress:"жим ногами платформа ноги",
+ lunge:"выпады ноги",bss:"болгарка болгарские сплит приседания выпады ягодицы",legext:"разгибания ног разгибание квадрицепс тренажер",legcurl:"сгибания ног сгибание бицепс бедра лежа тренажер",
+ legcurlseat:"сгибания ног сгибание бицепс бедра сидя тренажер",adduct:"сведение ног сведения приводящие внутренняя бедра тренажер",abduct:"разведение ног разведения отведение ягодицы спинка тренажер",
+ abductlean:"разведение ног разведения отведение наклон ягодицы тренажер",cableabd:"отведение ноги кроссовер ягодицы",hipthrust:"хип траст хиптраст ягодичный мост ягодицы",
+ calf:"икры носки икроножные",calf1:"икры носок одна нога икроножные",calfbb:"икры носки штанга икроножные",calfseat:"икры носки сидя камбаловидная",tibraise:"носки на себя голень",
+ ezcurl:"бицепс изогнутый гриф подъем",supcurl:"бицепс супинация гантели подъем",hammer:"молотки молот хаммер бицепс",revcurl:"обратный хват бицепс предплечья",
+ ohext1:"трицепс из-за головы гантель французский разгибание",pushdown:"трицепс блок разгибания",ropepd:"трицепс канат блок разгибания",
+ wristcurl:"предплечья кисти запястья сгибания",revwrist:"предплечья кисти запястья разгибания",farmer:"фермер прогулка хват",
+ crunch:"пресс скручивания",hlr:"пресс подъем ног вис турник",plank:"планка пресс",russian:"русские скручивания косые пресс"};
+const LAT="qwertyuiop[]asdfghjkl;'zxcvbnm,.`",CYR="йцукенгшщзхъфывапролджэячсмитьбюё";
+const toCyr=q=>q.toLowerCase().split("").map(c=>{const i=LAT.indexOf(c);return i>=0?CYR[i]:c}).join("");
+const words=t=>nrm(t).replace(/[^a-zа-я0-9]+/g," ").split(" ").filter(Boolean);
+const stem=w=>w.length<=4?w:w.slice(0,Math.max(4,w.length-(w.length>7?3:2)));
+const FUZ=5;
+function near(a,b){ // edit distance <= 1
+  if(Math.abs(a.length-b.length)>1)return false;let i=0,j=0,d=0;
+  while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue}if(++d>1)return false;if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++}}
+  return d+(a.length-i)+(b.length-j)<=1;
+}
+const MSLANG={gmax:"жопа попа",gmed:"жопа попа",gmin:"жопа попа",lats:"крылья спина",traps:"трапы трапеция",biceps:"бицуха",triceps:"трицуха",abs:"кубики",gastro:"икры",soleus:"икры",rectfem:"квадры ноги",vlat:"квадры ноги",vmed:"квадры ноги",bfem:"бицепс бедра ноги",semit:"бицепс бедра ноги",fdelt:"дельты плечи",mdelt:"дельты плечи",rdelt:"дельты плечи",adductors:"внутренняя ноги",lowback:"поясница",wflex:"предплечья",wext:"предплечья",brachiorad:"предплечья"};
+const hayCache=new Map();
+function hayOf(e){const k=e.id+"|"+e.name;if(hayCache.has(k))return hayCache.get(k);
+  const h={name:words(e.name),alias:words(ALIAS[e.id]||""),prim:words(e.p.map(m=>MNAME[m]+" "+GNAME[GOF[m]]+" "+(MSLANG[m]||"")).join(" ")),sec:words(e.s.map(m=>MNAME[m]+" "+GNAME[GOF[m]]+" "+(MSLANG[m]||"")).join(" "))};hayCache.set(k,h);return h}
+function tokScore(t,h){
+  const st=stem(t);
+  const hit=list=>list.some(w=>w.startsWith(st)||(st.length>=FUZ&&w.length>=st.length&&near(st,w.slice(0,st.length)))||(st.length>=FUZ&&near(st,stem(w))));
+  if(hit(h.name))return 3;if(hit(h.alias))return 2;if(hit(h.prim))return 1.5;if(hit(h.sec))return 1;return 0;
+}
+function exScoreRaw(e,q){const ts=words(q);if(!ts.length)return 1;let sc=0;
+  for(const t of ts){const x=tokScore(t,hayOf(e));if(!x)return 0;sc+=x}
+  const n=nrm(e.name);if(n.startsWith(nrm(q).trim()))sc+=3;return sc}
+function exScore(e,q){const a=exScoreRaw(e,q);if(a||!/[a-z]/i.test(q))return a;return exScoreRaw(e,toCyr(q))*0.9}
+const exMatch=(e,q)=>exScore(e,q)>0;
+function searchEx(list,q){return list.map(e=>[e,exScore(e,q)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||a[0].name.localeCompare(b[0].name,"ru")).map(x=>x[0])}
 const plural=(n,a,b,c)=>{const x=Math.abs(n)%10,y=Math.abs(n)%100;return x===1&&y!==11?a:x>=2&&x<=4&&(y<10||y>=20)?b:c};
 const setsLabel=n=>plural(n,"подход","подхода","подходов");
 const exLabel=n=>plural(n,"упражнение","упражнения","упражнений");
@@ -877,13 +959,13 @@ function openPicker(onPick,opts={}){
   const recent=[];for(const e of entries().sort((a,b)=>(b.date+(b.t||"")).localeCompare(a.date+(a.t||"")))){const x=exById(e.ex);if(x&&!x.retired&&!recent.includes(e.ex))recent.push(e.ex);if(recent.length>=6)break}
   const inDay=opts.inSet||new Set(dayEntries(S.day).map(e=>e.ex));const inLbl=opts.inSet?"уже в шаблоне":"уже в тренировке";
   const item=ex=>{const last=lastSession(ex.id,"9999-12-31");return `<button class="pick" data-pick="${esc(ex.id)}">${miniMaps(ex)}<span><b>${esc(ex.name)}${inDay.has(ex.id)?' <span class="pill up">'+inLbl+'</span>':""}</b><span class="sub">${ex.p.map(m=>MNAME[m]).join(", ")}${last?" · прошлый раз: "+esc(setsText(last.sets,uOf(last))):""}</span></span></button>`};
-  const draw=q=>{q=q.trim().toLowerCase();
-    const all=exercises().filter(e=>exMatch(e,q));
+  const draw=q=>{q=q.trim();
     let h="";
-    if(!q&&recent.length)h+=`<div class="label">Недавние</div><div class="picklist">${recent.map(id=>item(exById(id))).join("")}</div>`;
-    h+=groupedExercises(all).map(([g,l])=>`<div class="label">${esc(g)}</div><div class="picklist">${l.map(item).join("")}</div>`).join("");
+    if(q){const found=searchEx(exercises(),q);return found.length?`<div class="label">Найдено: ${found.length}</div><div class="picklist">${found.map(item).join("")}</div>`:`<p class="muted">Ничего не нашлось по «${esc(q)}». Попробуй часть слова, например «тяг» или «ягод», или создай своё упражнение во вкладке «Упражнения».</p>`}
+    if(recent.length)h+=`<div class="label">Недавние</div><div class="picklist">${recent.map(id=>item(exById(id))).join("")}</div>`;
+    h+=groupedExercises(exercises()).map(([g,l])=>`<div class="label">${esc(g)}</div><div class="picklist">${l.map(item).join("")}</div>`).join("");
     return h||`<p class="muted">Ничего не нашлось. Своё упражнение можно создать во вкладке «Упражнения».</p>`};
-  const sh=openSheet(opts.title||"Добавить упражнение",`<input type="search" id="pickQ" placeholder="Поиск: название или мышца" aria-label="Поиск упражнения"><div class="stack" id="pickList" style="gap:8px">${draw("")}</div>`);
+  const sh=openSheet(opts.title||"Добавить упражнение",`<input type="search" id="pickQ" placeholder="Поиск: «румынка», «ягодицы», «тяга блока»…" aria-label="Поиск упражнения"><div class="stack" id="pickList" style="gap:8px">${draw("")}</div>`);
   sh.querySelector("#pickQ").addEventListener("input",e=>{sh.querySelector("#pickList").innerHTML=draw(e.target.value)});
   sh.addEventListener("click",async e=>{const b=e.target.closest("[data-pick]");if(!b)return;closeSheet();await onPick(b.dataset.pick)});
 }
@@ -937,7 +1019,7 @@ $("view-week").addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(a){S.weekStart=addDays(S.weekStart,a.dataset.act==="wprev"?-7:7);renderWeek();return}
   const t=e.target.closest("[data-sel]")||e.target.closest("[data-m]");if(!t)return;const k=t.dataset.sel||t.dataset.m;S.sel=S.sel===k?null:k;renderWeek();
 });
-$("view-week").addEventListener("mouseover",e=>{const p=e.target.closest("polygon[data-m]");const h=$("hoverName");if(h)h.textContent=p?MNAME[p.dataset.m]:""});
+$("view-week").addEventListener("mouseover",e=>{const p=e.target.closest("path[data-m]");const h=$("hoverName");if(h)h.textContent=p?MNAME[p.dataset.m]:""});
 
 /* ================= PROGRESS view ================= */
 function sparkSVG(vals){
@@ -1058,7 +1140,8 @@ function renderLib(){
   const match=e=>exMatch(e,q);
   const done=new Set(entries().filter(e=>doneSets(e.sets).length).map(e=>e.ex));
   const card=e=>`<div class="excard">${miniMaps(e)}<div style="min-width:0"><div class="t">${esc(e.name)}</div><div class="chips">${chipsFor(e)}</div><div class="acts"><button class="btn small" data-addtoday="${esc(e.id)}">В сегодняшнюю</button>${done.has(e.id)?`<button class="btn small" data-hist="${esc(e.id)}">Прогресс</button>`:""}${e.builtin?"":`<button class="btn small ghost" data-edit="${esc(e.id)}">Изменить</button><button class="btn small ghost danger" data-exdel="${esc(e.id)}">Удалить</button>`}</div></div></div>`;
-  $("lib").innerHTML=groupedExercises(exercises().filter(match)).map(([g,l])=>`<h2 class="group-title">${esc(g)}</h2><div class="libgrid">${l.map(card).join("")}</div>`).join("")||`<p class="muted">Ничего не нашлось.</p>`;
+  if(q.trim()){const f=searchEx(exercises(),q);$("lib").innerHTML=f.length?`<h2 class="group-title">Найдено: ${f.length}</h2><div class="libgrid">${f.map(card).join("")}</div>`:`<p class="muted">Ничего не нашлось по «${esc(q)}».</p>`;return}
+  $("lib").innerHTML=groupedExercises(exercises()).map(([g,l])=>`<h2 class="group-title">${esc(g)}</h2><div class="libgrid">${l.map(card).join("")}</div>`).join("")||`<p class="muted">Ничего не нашлось.</p>`;
 }
 function renderExForm(){
   const pick=S.exPick;
